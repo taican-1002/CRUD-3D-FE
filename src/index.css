@@ -1,0 +1,124 @@
+body {
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
+    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* Scrollbar */
+/* width */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 8px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.1);
+  /* opacity: 0; */
+  border-radius: 10px;
+}
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.4);
+}
+
+img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+table th,
+table td {
+  white-space: nowrap;
+}
+
+table td img {
+  width: 200px;
+  height: 170px;
+}
+
+.toast {
+  position: fixed;
+  background-color: #fff !important;
+  top: 0;
+  right: 0;
+}
+
+.required {
+  color: #ff0000;
+}
+
+.nav-item {
+  cursor: pointer;
+}
+
+.tab-content > .active {
+  display: flex !important;
+  flex-direction: column;
+}
+
+#container_imagecompiler {
+  display: flex;
+  flex-direction: column;
+}
+
+#root a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.form-add {
+  display: flex;
+  flex-direction: column;
+}
+
+.image_target {
+  cursor: pointer;
+}
+
+#root .MuiPagination-ul {
+  justify-content: center;
+  margin: 30px 0;
+}
+
+.close-icon {
+  float: right;
+  cursor: pointer;
+}
+.close-icon:hover {
+  background-color: #ccc;
+  border-radius: 15px;
+  color: #fff;
+}
+
+.MuiDialog-root .btn-submit {
+  margin: 30px 0 0;
+}
+
+/*Face Tracking*/
+.face-point {
+  display: flex;
+  flex: 1;
+  gap: 15px;
+  justify-content: space-between;
+}
+
+.face_avatar {
+  border-radius: 10px;
+}
