@@ -7,6 +7,7 @@ import { imageValidate } from "../validation";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { TextField, Button, Box } from "@mui/material";
+import generateId from "../../func/randomHex";
 
 const inputProps = { inputMode: "decimal", step: 0.01 };
 
@@ -16,6 +17,7 @@ const AddFaceTrackingForm = (props) => {
   const [image, setImage] = useState([]);
   const [isSubmit, setIsSubmit] = useState(false);
   const [id, setId] = useState(uuidv4());
+  const [idImage, setIdImage] = useState(generateId());
   const {
     register,
     handleSubmit,
@@ -55,7 +57,8 @@ const AddFaceTrackingForm = (props) => {
     if (data.file.length === 0 || data.image.length === 0) {
       return;
     }
-    formAdd.append("id", uuidv4());
+    formAdd.append("id", id);
+    formAdd.append("idImage", idImage);
     formAdd.append("name", data.name);
     formAdd.append("scaleX", data.scaleX);
     formAdd.append("scaleY", data.scaleY);
@@ -89,6 +92,8 @@ const AddFaceTrackingForm = (props) => {
     <form className="form-add" onSubmit={handleSubmit(submitFormAdd)}>
       <p>Id</p>
       <TextField disabled id="id" value={id} />
+      <p>Id Image</p>
+      <TextField disabled id="idImage" value={idImage} />
       <br />
       <p>
         Name <span className="required">*</span>
@@ -192,7 +197,7 @@ const AddFaceTrackingForm = (props) => {
       </Box>
       <br />
       <p>
-        Image Targets Compiler <span className="required">*</span> (.mind)
+        Image <span className="required">*</span>
       </p>
       <TextField
         {...register("image")}

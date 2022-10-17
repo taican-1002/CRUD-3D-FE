@@ -10,7 +10,6 @@ import {
 // import ModalForm from "../Modals/Modal";
 import axios from "axios";
 import { toast } from "react-toastify";
-import openInNewTab from "../../func/openInNewTab";
 
 const DataTable = (props) => {
   const { active, items, getData } = props;
@@ -31,9 +30,6 @@ const DataTable = (props) => {
     }
   };
 
-  const handleDownFile = (path) => {
-    openInNewTab(process.env.REACT_APP_BASE_URL + path);
-  };
   return (
     <Table>
       <TableHead>
@@ -64,7 +60,7 @@ const DataTable = (props) => {
               {!active ? (
                 <TableCell>
                   <img
-                    alt="avatar"
+                    alt={item.avatar.filename}
                     className="face_avatar"
                     src={
                       item?.avatar
@@ -75,15 +71,17 @@ const DataTable = (props) => {
                   />
                 </TableCell>
               ) : (
-                <TableCell
-                  className="image_target"
-                  onClick={() =>
-                    handleDownFile(
-                      item?.image?.path.slice(4, item?.image?.path.length)
-                    )
-                  }
-                >
-                  {item?.image?.filename}
+                <TableCell>
+                  <img
+                    alt={item.image.filename}
+                    className="image_target"
+                    src={
+                      item?.image
+                        ? process.env.REACT_APP_BASE_URL +
+                          item?.image?.path.slice(4, item?.image?.path.length)
+                        : ""
+                    }
+                  />
                 </TableCell>
               )}
               <TableCell>
