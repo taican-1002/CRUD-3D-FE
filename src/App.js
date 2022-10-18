@@ -5,6 +5,7 @@ import { TabPanel, TabList, TabContext } from "@mui/lab";
 import ModalForm from "./Components/Modals/Modal";
 import DataTable from "./Components/Tables/DataTable";
 import ImageTargetsCompiler from "./Components/Modals/ImageTargetsCompiler";
+import VideoTargetsCompiler from "./Components/Modals/VideoTargetsCompiler";
 // import { CSVLink } from "react-csv";
 import axios from "axios";
 import { ToastContainer } from "react-toastify";
@@ -13,15 +14,21 @@ import "react-toastify/dist/ReactToastify.css";
 const App = () => {
   const [faces, setFaces] = useState([]);
   const [images, setImages] = useState([]);
+  const [videos, setVideos] = useState([]);
   const [filterFace, setFilterFace] = useState({
     page: 1,
     totalPages: 1,
   });
+
   const [filterImage, setFilterImage] = useState({
     page: 1,
     totalPages: 1,
   });
-  const [active, setActive] = useState(false);
+
+  const [filterVideo, setFilterVideo] = useState({
+    page: 1,
+    totalPages: 1,
+  });
   const [tabValue, setTabValue] = useState("1");
 
   const handleChangeTabs = (event, newValue) => {
@@ -46,7 +53,7 @@ const App = () => {
       .get(`${process.env.REACT_APP_BASE_URL}image/files/${filterImage.page}`)
       .then((res) => {
         setImages(res.data.data);
-        setFilterFace({
+        setFilterImage({
           page: res.data.current,
           totalPages: res.data.pages,
         });
@@ -54,11 +61,27 @@ const App = () => {
       .catch((err) => console.log(err));
   }, [filterImage.page]);
 
+  const getVideoData = useCallback(() => {
+    axios
+      .get(`${process.env.REACT_APP_BASE_URL}video/files/${filterVideo.page}`)
+      .then((res) => {
+        setVideos(res.data.data);
+        setFilterVideo({
+          page: res.data.current,
+          totalPages: res.data.pages,
+        });
+      })
+      .catch((err) => console.log(err));
+  }, [filterVideo.page]);
+
   const handleChangePageFace = (e, page) => {
     setFilterFace({ ...filterFace, page: page });
   };
   const handleChangePageImage = (e, page) => {
     setFilterImage({ ...filterImage, page: page });
+  };
+  const handleChangePageVideo = (e, page) => {
+    setFilterVideo({ ...filterVideo, page: page });
   };
 
   useEffect(() => {
@@ -67,6 +90,9 @@ const App = () => {
   useEffect(() => {
     getImageData();
   }, [filterImage.page, filterImage.totalPages, getImageData]);
+  useEffect(() => {
+    getVideoData();
+  }, [filterVideo.page, filterVideo.totalPages, getVideoData]);
 
   return (
     <Container className="App" maxWidth="xl">
@@ -90,59 +116,67 @@ const App = () => {
             buttonLabel="Add Item"
             getFaceData={getFaceData}
             getImageData={getImageData}
-            active={active}
+            getVideoData={getVideoData}
+            tabValue={tabValue}
           />
         </Col>
       </Row>
       <TabContext value={tabValue}>
         <TabList onChange={handleChangeTabs}>
-          <Tab
-            className={!active ? "active" : ""}
-            onClick={() => setActive(false)}
-            label="Face Tracking"
-            value="1"
-          />
-
-          <Tab
-            className={active ? "active" : ""}
-            onClick={() => setActive(true)}
-            label="Image Tracking"
-            value="2"
-          />
+          <Tab label="Face Tracking" value="1" />
+          <Tab label="Image Tracking" value="2" />
+          <Tab label="Video Tracking" value="3" />
         </TabList>
-        <TabPanel value="1">
+        <TabPanel value={tabValue}>
           <Row>
             <Col>
-              <DataTable active={active} items={faces} getData={getFaceData} />
+              {tabValue === "1" ? (
+                ""
+              ) : tabValue === "2" ? (
+                <ImageTargetsCompiler />
+              ) : (
+                <VideoTargetsCompiler />
+              )}
+              <DataTable
+                getData={
+                  tabValue === "1"
+                    ? getFaceData
+                    : tabValue === "2"
+                    ? getImageData
+                    : getVideoData
+                }
+                tabValue={tabValue}
+                items={
+                  tabValue === "1" ? faces : tabValue === "2" ? images : videos
+                }
+              />
             </Col>
             <Stack spacing={2}>
               <Pagination
-                count={filterFace.totalPages}
-                page={filterFace.page}
-                onChange={handleChangePageFace}
+                count={
+                  tabValue === "1"
+                    ? filterFace.totalPages
+                    : tabValue === "2"
+                    ? filterImage.totalPages
+                    : filterVideo.totalPages
+                }
+                page={
+                  tabValue === "1"
+                    ? filterFace.page
+                    : tabValue === "2"
+                    ? filterImage.page
+                    : filterVideo.page
+                }
+                onChange={
+                  tabValue === "1"
+                    ? handleChangePageFace
+                    : tabValue === "2"
+                    ? handleChangePageImage
+                    : handleChangePageVideo
+                }
                 boundaryCount={2}
               />
             </Stack>
-          </Row>
-        </TabPanel>
-        <TabPanel value="2">
-          <ImageTargetsCompiler />
-          <Row>
-            <Col>
-              <DataTable
-                active={active}
-                items={images}
-                getData={getImageData}
-              />
-              <Stack spacing={2}>
-                <Pagination
-                  count={filterImage.totalPages}
-                  page={filterImage.page}
-                  onChange={handleChangePageImage}
-                  boundaryCount={2}
-                />
-              </Stack>
-            </Col>
           </Row>
         </TabPanel>
       </TabContext>

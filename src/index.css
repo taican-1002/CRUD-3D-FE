@@ -131,7 +131,8 @@ table td img {
 }
 
 /*Image Tracking*/
-.image-compiler {
+.image-compiler,
+.video-compiler {
   display: flex;
   align-items: center;
   justify-content: space-between;

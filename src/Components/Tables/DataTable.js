@@ -12,16 +12,30 @@ import axios from "axios";
 import { toast } from "react-toastify";
 
 const DataTable = (props) => {
-  const { active, items, getData } = props;
+  const { tabValue, items, getData } = props;
+  let URL = "";
+  let TABLECELL = "";
+  switch (tabValue) {
+    case "1":
+      URL = "face/files/";
+      TABLECELL = "AVATAR";
+      break;
+    case "2":
+      URL = "image/files/";
+      TABLECELL = "IMAGE";
+      break;
+    case "3":
+      URL = "video/files/";
+      TABLECELL = "VIDEO";
+      break;
+    default:
+      break;
+  }
   const deleteItem = (id) => {
     let confirmDelete = window.confirm("Delete item forever?");
     if (confirmDelete) {
       axios
-        .delete(
-          process.env.REACT_APP_BASE_URL +
-            `${!active ? "face/files/" : "image/files/"}` +
-            id
-        )
+        .delete(process.env.REACT_APP_BASE_URL + URL + id)
         .then((res) => {
           toast.success(res.data.message);
           getData();
@@ -36,15 +50,15 @@ const DataTable = (props) => {
         <TableRow>
           <TableCell>ID</TableCell>
           <TableCell>NAME</TableCell>
-          {!active ? (
-            <TableCell>AVATAR</TableCell>
-          ) : (
-            <TableCell>IMAGE</TableCell>
+          <TableCell>{TABLECELL}</TableCell>
+          {tabValue !== "3" && (
+            <>
+              <TableCell>SCALE</TableCell>
+              <TableCell>POSITION</TableCell>
+              <TableCell>ROTATION</TableCell>
+              <TableCell>IMAGE 3D</TableCell>
+            </>
           )}
-          <TableCell>SCALE</TableCell>
-          <TableCell>POSITION</TableCell>
-          <TableCell>ROTATION</TableCell>
-          <TableCell>IMAGE</TableCell>
           <TableCell>ACTIONS</TableCell>
         </TableRow>
       </TableHead>
@@ -57,10 +71,10 @@ const DataTable = (props) => {
                 {/* {{ (page - 1) * 10 + index + 1 }} */}
               </TableCell>
               <TableCell>{item.name}</TableCell>
-              {!active ? (
-                <TableCell>
+              <TableCell>
+                {tabValue === "1" ? (
                   <img
-                    alt={item.avatar.filename}
+                    alt={item?.avatar?.filename}
                     className="face_avatar"
                     src={
                       item?.avatar
@@ -69,11 +83,9 @@ const DataTable = (props) => {
                         : ""
                     }
                   />
-                </TableCell>
-              ) : (
-                <TableCell>
+                ) : tabValue === "2" ? (
                   <img
-                    alt={item.image.filename}
+                    alt={item?.image?.filename}
                     className="image_target"
                     src={
                       item?.image
@@ -82,51 +94,65 @@ const DataTable = (props) => {
                         : ""
                     }
                   />
-                </TableCell>
+                ) : (
+                  <video width="400" controls>
+                    <source
+                      src={
+                        process.env.REACT_APP_BASE_URL +
+                        item.video.path.slice(4, item.video.path.length)
+                      }
+                      type="video/mp4"
+                    />
+                  </video>
+                )}
+              </TableCell>
+              {tabValue !== "3" && (
+                <>
+                  <TableCell>
+                    <ul>
+                      <li>Scale X: {item.scaleX}</li>
+                      <li>Scale Y: {item.scaleY}</li>
+                      <li>Scale Z: {item.scaleZ}</li>
+                    </ul>
+                  </TableCell>
+                  <TableCell>
+                    <ul>
+                      <li>Position X: {item.positionX}</li>
+                      <li>Position Y: {item.positionY}</li>
+                      <li>Position Z: {item.positionZ}</li>
+                    </ul>
+                  </TableCell>
+                  <TableCell>
+                    <ul>
+                      <li>Rotation X: {item.rotationX}</li>
+                      <li>Rotation Y: {item.rotationY}</li>
+                      <li>Rotation Z: {item.rotationZ}</li>
+                    </ul>
+                  </TableCell>
+                  <TableCell>
+                    <model-viewer
+                      src={
+                        `${process.env.REACT_APP_BASE_URL}uploads/` +
+                        item.id +
+                        "/" +
+                        item.fileList.filter((item) =>
+                          item.filename.includes("gltf")
+                        )[0].filename
+                      }
+                      camera-controls
+                      touch-action="pan-y"
+                      alt="A 3D model of a sphere"
+                    ></model-viewer>
+                  </TableCell>
+                </>
               )}
               <TableCell>
-                <ul>
-                  <li>Scale X: {item.scaleX}</li>
-                  <li>Scale Y: {item.scaleY}</li>
-                  <li>Scale Z: {item.scaleZ}</li>
-                </ul>
-              </TableCell>
-              <TableCell>
-                <ul>
-                  <li>Position X: {item.positionX}</li>
-                  <li>Position Y: {item.positionY}</li>
-                  <li>Position Z: {item.positionZ}</li>
-                </ul>
-              </TableCell>
-              <TableCell>
-                <ul>
-                  <li>Rotation X: {item.rotationX}</li>
-                  <li>Rotation Y: {item.rotationY}</li>
-                  <li>Rotation Z: {item.rotationZ}</li>
-                </ul>
-              </TableCell>
-              <TableCell>
-                <model-viewer
-                  src={
-                    `${process.env.REACT_APP_BASE_URL}uploads/` +
-                    item.id +
-                    "/" +
-                    item.fileList.filter((item) =>
-                      item.filename.includes("gltf")
-                    )[0].filename
-                  }
-                  camera-controls
-                  touch-action="pan-y"
-                  alt="A 3D model of a sphere"
-                ></model-viewer>
-              </TableCell>
-              <TableCell>
                 {/* {" "}
-                  <ModalForm
-                    buttonLabel="Edit"
-                    item={item}
-                    updateState={updateState}
-                  />{" "} */}
+          <ModalForm
+            buttonLabel="Edit"
+            item={item}
+            updateState={updateState}
+          />{" "} */}
                 <Button
                   color="error"
                   variant="contained"

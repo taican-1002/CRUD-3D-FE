@@ -2,6 +2,7 @@ import { Button, Dialog, DialogContent, DialogTitle } from "@mui/material";
 import React, { useState } from "react";
 import AddFaceTrackingForm from "../Forms/AddFaceTrackingForm";
 import AddImageTrackingForm from "../Forms/AddImageTrackingForm";
+import AddVideoTrackingForm from "../Forms/AddVideoTrackingForm";
 import { Close } from "@mui/icons-material";
 
 const ModalForm = (props) => {
@@ -9,10 +10,10 @@ const ModalForm = (props) => {
     buttonLabel,
     getFaceData,
     getImageData,
+    getVideoData,
     className,
     item,
-    updateState,
-    active,
+    tabValue,
   } = props;
   const [modal, setModal] = useState(false);
   const toggle = () => {
@@ -66,17 +67,21 @@ const ModalForm = (props) => {
           <Close onClick={toggle} className="close-icon" />
         </DialogTitle>
         <DialogContent>
-          {!active ? (
+          {tabValue === "1" ? (
             <AddFaceTrackingForm
               getData={getFaceData}
-              updateState={updateState}
+              toggle={toggle}
+              item={item}
+            />
+          ) : tabValue === "2" ? (
+            <AddImageTrackingForm
+              getData={getImageData}
               toggle={toggle}
               item={item}
             />
           ) : (
-            <AddImageTrackingForm
-              getData={getImageData}
-              updateState={updateState}
+            <AddVideoTrackingForm
+              getData={getVideoData}
               toggle={toggle}
               item={item}
             />

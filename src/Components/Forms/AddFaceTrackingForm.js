@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { v4 as uuidv4 } from "uuid";
@@ -15,7 +15,7 @@ const AddFaceTrackingForm = (props) => {
   const [file, setFile] = useState([]);
   const [avatar, setAvatar] = useState([]);
   const [isSubmit, setIsSubmit] = useState(false);
-  const [id, setId] = useState(uuidv4());
+  const [id, setId] = useState("");
   const {
     register,
     handleSubmit,
@@ -24,6 +24,10 @@ const AddFaceTrackingForm = (props) => {
     defaultValues: initialValuesFace,
     resolver: yupResolver(faceValidate),
   });
+
+  useEffect(() => {
+    setId(uuidv4());
+  }, []);
 
   const onChangeAvatar = (e) => {
     setAvatar(e.target.files);
@@ -67,7 +71,7 @@ const AddFaceTrackingForm = (props) => {
     if (data.file.length === 0 || data.avatar.length === 0) {
       return;
     }
-    formAdd.append("id", uuidv4());
+    formAdd.append("id", id);
     formAdd.append("name", data.name);
     formAdd.append("index", data.index);
     formAdd.append("scaleX", data.scaleX);

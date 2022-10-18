@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { v4 as uuidv4 } from "uuid";
@@ -11,12 +11,12 @@ import generateId from "../../func/randomHex";
 
 const inputProps = { inputMode: "decimal", step: 0.01 };
 
-const AddFaceTrackingForm = (props) => {
+const AddImageTrackingForm = (props) => {
   const { getData, toggle } = props;
   const [file, setFile] = useState([]);
   const [image, setImage] = useState([]);
   const [isSubmit, setIsSubmit] = useState(false);
-  const [id, setId] = useState(uuidv4());
+  const [id, setId] = useState("");
   const [idImage, setIdImage] = useState(generateId());
   const {
     register,
@@ -26,6 +26,10 @@ const AddFaceTrackingForm = (props) => {
     defaultValues: initialValuesImage,
     resolver: yupResolver(imageValidate),
   });
+
+  useEffect(() => {
+    setId(uuidv4());
+  }, []);
 
   const onChangeImage = (e) => {
     setImage(e.target.files);
@@ -237,4 +241,4 @@ const AddFaceTrackingForm = (props) => {
   );
 };
 
-export default AddFaceTrackingForm;
+export default AddImageTrackingForm;

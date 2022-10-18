@@ -98,4 +98,8 @@ const imageValidate = yup.object().shape({
   // .required("Vui lòng chọn file")
 });
 
-export { faceValidate, imageValidate };
+const videoValidate = yup.object().shape({
+  name: yup.string().required("Vui lòng nhập tên"),
+});
+
+export { faceValidate, imageValidate, videoValidate };

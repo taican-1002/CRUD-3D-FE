@@ -7,7 +7,6 @@ const ImageTargetsCompiler = () => {
   const [imageCompiler, setImageCompiler] = useState("");
   const handleChangeImageTargetsCompiler = (e) => {
     const imageCompilerFile2 = document.querySelector("fieldset");
-    console.log(e.target.files);
     setImageCompiler(e.target.files);
 
     var formAdd = new FormData();
@@ -35,12 +34,10 @@ const ImageTargetsCompiler = () => {
       axios
         .get(`${process.env.REACT_APP_BASE_URL}imageTargets/files`)
         .then((res) => {
-          console.log(imageCompilerFile);
           res.data.data.length > 0 && imageCompilerFile
             ? (imageCompilerFile.innerText =
                 res.data.data[0].image_compiler.filename)
             : (imageCompilerFile.innerText = "Please choose file");
-          console.log(imageCompilerFile);
         })
         .catch((err) => console.log(err));
     };

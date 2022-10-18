@@ -11,4 +11,10 @@ const initialValuesImage = {
   file: [],
 };
 
-export { initialValuesFace, initialValuesImage };
+const initialValuesVideo = {
+  name: "",
+  video: [],
+  file: [],
+};
+
+export { initialValuesFace, initialValuesImage, initialValuesVideo };
