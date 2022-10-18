@@ -5,9 +5,18 @@ import { toast } from "react-toastify";
 
 const ImageTargetsCompiler = () => {
   const [imageCompiler, setImageCompiler] = useState("");
-  const handleChangeImageTargetsCompiler = (e) => {
+  const deleteImageCompiler = async () => {
+    await axios.delete(`${process.env.REACT_APP_BASE_URL}imageTargets/files`, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+  };
+
+  const handleChangeImageTargetsCompiler = async (e) => {
     const imageCompilerFile2 = document.querySelector("fieldset");
     setImageCompiler(e.target.files);
+    await deleteImageCompiler();
 
     var formAdd = new FormData();
     if (e.target.files.length === 0) {
@@ -15,7 +24,7 @@ const ImageTargetsCompiler = () => {
       return;
     }
     formAdd.append("image_compiler", e.target.files[0]);
-    axios
+    await axios
       .post(`${process.env.REACT_APP_BASE_URL}imageTargets/files`, formAdd, {
         headers: {
           "Content-Type": "multipart/form-data",

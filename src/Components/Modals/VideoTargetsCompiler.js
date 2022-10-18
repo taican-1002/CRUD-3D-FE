@@ -5,17 +5,26 @@ import { toast } from "react-toastify";
 
 const VideoTargetsCompiler = () => {
   const [videoCompiler, setVideoCompiler] = useState("");
-  const handleChangeVideoTargetsCompiler = (e) => {
+
+  const deleteVideoCompiler = async () => {
+    await axios.delete(`${process.env.REACT_APP_BASE_URL}videoTargets/files`, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+  };
+
+  const handleChangeVideoTargetsCompiler = async (e) => {
     const videoCompilerFile2 = document.querySelector("fieldset");
     setVideoCompiler(e.target.files);
-
+    await deleteVideoCompiler();
     var formAdd = new FormData();
     if (e.target.files.length === 0) {
       videoCompilerFile2.innerText = videoCompiler[0].name;
       return;
     }
     formAdd.append("video_compiler", e.target.files[0]);
-    axios
+    await axios
       .post(`${process.env.REACT_APP_BASE_URL}videoTargets/files`, formAdd, {
         headers: {
           "Content-Type": "multipart/form-data",
