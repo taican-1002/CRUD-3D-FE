@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import {
   Table,
   Button,
@@ -7,12 +7,18 @@ import {
   TableCell,
   TableBody,
 } from "@mui/material";
-// import ModalForm from "../Modals/Modal";
+import ModalForm from "../Modals/Modal";
 import axios from "axios";
 import { toast } from "react-toastify";
 
 const DataTable = (props) => {
   const { tabValue, items, getData } = props;
+  const videoRef = useRef(null);
+  useEffect(() => {
+    videoRef.current?.load();
+  }, [items]);
+
+  console.log(items);
   let URL = "";
   let TABLECELL = "";
   switch (tabValue) {
@@ -95,7 +101,7 @@ const DataTable = (props) => {
                     }
                   />
                 ) : (
-                  <video width="400" controls>
+                  <video width="400" controls ref={videoRef}>
                     <source
                       src={
                         process.env.REACT_APP_BASE_URL +
@@ -146,13 +152,13 @@ const DataTable = (props) => {
                   </TableCell>
                 </>
               )}
-              <TableCell>
-                {/* {" "}
-          <ModalForm
-            buttonLabel="Edit"
-            item={item}
-            updateState={updateState}
-          />{" "} */}
+              <TableCell className="btn-action">
+                <ModalForm
+                  buttonLabel="Edit"
+                  getData={getData}
+                  item={item}
+                  tabValue={tabValue}
+                />
                 <Button
                   color="error"
                   variant="contained"

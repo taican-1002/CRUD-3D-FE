@@ -20,6 +20,11 @@ ul {
   align-items: center;
   justify-content: center;
 }
+.fieldset-file fieldset {
+  background: #fff;
+  display: flex;
+  align-items: center;
+}
 
 /* Scrollbar */
 /* width */

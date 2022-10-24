@@ -6,47 +6,28 @@ import AddVideoTrackingForm from "../Forms/AddVideoTrackingForm";
 import { Close } from "@mui/icons-material";
 
 const ModalForm = (props) => {
-  const {
-    buttonLabel,
-    getFaceData,
-    getImageData,
-    getVideoData,
-    className,
-    item,
-    tabValue,
-  } = props;
+  const { buttonLabel, getData, className, item, tabValue } = props;
   const [modal, setModal] = useState(false);
   const toggle = () => {
     setModal(!modal);
   };
+  var button;
+  var title;
 
-  // if (buttonLabel === "Edit") {
-  //   button = (
-  //     <Button
-  //       color="warning"
-  //       onClick={toggle}
-  //       style={{ float: "left", marginRight: "10px" }}
-  //     >
-  //       {buttonLabel}
-  //     </Button>
-  //   );
-  //   title = "Edit Item";
-  // } else {
-  //   button = (
-  //     <Button
-  //       color="success"
-  //       onClick={toggle}
-  //       style={{ float: "left", marginRight: "10px" }}
-  //     >
-  //       {buttonLabel}
-  //     </Button>
-  //   );
-  //   title = "Add New Item";
-  // }
-
-  return (
-    <div>
-      {/* {button} */}
+  if (buttonLabel === "Edit") {
+    button = (
+      <Button
+        color="warning"
+        variant="contained"
+        onClick={toggle}
+        sx={{ margin: " 0 0 20px" }}
+      >
+        {buttonLabel}
+      </Button>
+    );
+    title = "Edit Item";
+  } else {
+    button = (
       <Button
         color="success"
         variant="contained"
@@ -55,6 +36,13 @@ const ModalForm = (props) => {
       >
         {buttonLabel}
       </Button>
+    );
+    title = "Add New Item";
+  }
+
+  return (
+    <div>
+      {button}
       <Dialog
         open={modal}
         onClose={toggle}
@@ -63,25 +51,25 @@ const ModalForm = (props) => {
         maxWidth="md"
       >
         <DialogTitle>
-          Add New Item
+          {title}
           <Close onClick={toggle} className="close-icon" />
         </DialogTitle>
         <DialogContent>
           {tabValue === "1" ? (
             <AddFaceTrackingForm
-              getData={getFaceData}
+              getData={getData}
               toggle={toggle}
               item={item}
             />
           ) : tabValue === "2" ? (
             <AddImageTrackingForm
-              getData={getImageData}
+              getData={getData}
               toggle={toggle}
               item={item}
             />
           ) : (
             <AddVideoTrackingForm
-              getData={getVideoData}
+              getData={getData}
               toggle={toggle}
               item={item}
             />

@@ -9,16 +9,23 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { TextField, Button, Box } from "@mui/material";
 
 const inputProps = { inputMode: "decimal", step: 0.01 };
+const inputPropsAvatar = {
+  accept: "image/*",
+};
 
 const AddFaceTrackingForm = (props) => {
-  const { getData, toggle } = props;
+  const { getData, toggle, item } = props;
   const [file, setFile] = useState([]);
   const [avatar, setAvatar] = useState([]);
   const [isSubmit, setIsSubmit] = useState(false);
   const [id, setId] = useState("");
+  const [isBinFile, setIsBinFile] = useState(false);
+  const [isGLTFFile, setIsGLTFFile] = useState(false);
+
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors },
   } = useForm({
     defaultValues: initialValuesFace,
@@ -26,12 +33,34 @@ const AddFaceTrackingForm = (props) => {
   });
 
   useEffect(() => {
-    setId(uuidv4());
-  }, []);
+    var output = document.getElementById("listing");
+    const avatarFieldset = document.querySelector(".avatar fieldset");
+    const fileFieldset = document.querySelector(".file fieldset");
+    !item && setId(uuidv4());
+    if (item) {
+      setIsBinFile(true);
+      setIsGLTFFile(true);
+      reset(item);
+      setId(item.id);
+      setAvatar(item.avatar);
+      setFile(item.fileList);
+      avatarFieldset.innerHTML = item.avatar.filename;
+      fileFieldset.innerHTML = item.fileList.length + " files";
+      for (const file of item.fileList) {
+        let liFile = document.createElement("li");
+        liFile.innerHTML = file.filename;
+        output.appendChild(liFile);
+      }
+    }
+  }, [item, reset]);
 
   const onChangeAvatar = (e) => {
-    setAvatar(e.target.files);
-    file.length > 0 && setIsSubmit(false);
+    const avatarFieldset = document.querySelector(".avatar fieldset");
+    if (item) {
+      avatarFieldset.innerHTML = e.target.files[0].name;
+    }
+    setAvatar(e.target.files[0]);
+    file.length > 0 && isBinFile && isGLTFFile && setIsSubmit(false);
     if (e.target.files.length === 0) {
       setAvatar([]);
       setIsSubmit(true);
@@ -39,7 +68,14 @@ const AddFaceTrackingForm = (props) => {
   };
 
   const onChangeFile = (e) => {
+    setIsBinFile(false);
+    setIsGLTFFile(false);
     let output = document.getElementById("listing");
+    output.innerHTML = "";
+    const fileFieldset = document.querySelector(".file fieldset");
+    if (item) {
+      fileFieldset.innerHTML = e.target.files.length + " files";
+    }
     for (const file of e.target.files) {
       let item = document.createElement("li");
       item.textContent = file.webkitRelativePath;
@@ -52,23 +88,22 @@ const AddFaceTrackingForm = (props) => {
       setIsSubmit(true);
     }
 
-    // for (let i = 0; i < e.target.files.length; i++) {
-    //   if (
-    //     e.target.files[i].name.includes(".bin") ||
-    //     e.target.files[i].name.includes(".gltf")
-    //   ) {
-    //     setIsCorrectFormat(true);
-    //   } else {
-    //     setIsCorrectFormat(false);
-    //   }
-    // }
+    for (let i = 0; i < e.target.files.length; i++) {
+      e.target.files[i].name.includes(".bin") && setIsBinFile(true);
+      e.target.files[i].name.includes(".gltf") && setIsGLTFFile(true);
+    }
+
     setFile(e.target.files);
   };
-  // console.log("isCorrectFormat: ", isCorrectFormat);
+
   const submitFormAdd = (data) => {
-    console.log("Data: ", data);
     var formAdd = new FormData();
-    if (data.file.length === 0 || data.avatar.length === 0) {
+    if (
+      data.file.length === 0 ||
+      data.avatar.length === 0 ||
+      !isBinFile ||
+      !isGLTFFile
+    ) {
       return;
     }
     formAdd.append("id", id);
@@ -101,38 +136,69 @@ const AddFaceTrackingForm = (props) => {
       })
       .catch((err) => toast.error(err.message ?? "Error"));
   };
-  // const submitFormEdit = (e) => {
-  //   e.preventDefault();
-  //   fetch("http://localhost:3000/crud", {
-  //     method: "put",
-  //     headers: {
-  //       "Content-Type": "application/json",
-  //     },
-  //     body: JSON.stringify({
-  //       // id: state.id,
-  //       // first: state.first,
-  //       // last: state.last,
-  //       // email: state.email,
-  //       // phone: state.phone,
-  //       // location: state.location,
-  //       // hobby: state.hobby,
-  //     }),
-  //   })
-  //     .then((response) => response.json())
-  //     .then((item) => {
-  //       // if (Array.isArray(item)) {
-  //       //   // console.log(item[0])
-  //       //   updateState(item[0]);
-  //       //   toggle();
-  //       // } else {
-  //       //   console.log("failure");
-  //       // }
-  //     })
-  //     .catch((err) => console.log(err));
-  // };
+  const submitFormEdit = (data) => {
+    if (data.file.length > 0) {
+      data.fileList = data.file;
+    }
+    var formEdit = new FormData();
+    if (
+      data.fileList.length === 0 ||
+      data.avatar.length === 0 ||
+      !isBinFile ||
+      !isGLTFFile
+    ) {
+      return;
+    }
+    formEdit.append("id", id);
+    formEdit.append("name", data.name);
+    formEdit.append("index", data.index);
+    formEdit.append("scaleX", data.scaleX);
+    formEdit.append("scaleY", data.scaleY);
+    formEdit.append("scaleZ", data.scaleZ);
+    formEdit.append("positionX", data.positionX);
+    formEdit.append("positionY", data.positionY);
+    formEdit.append("positionZ", data.positionZ);
+    formEdit.append("rotationX", data.rotationX);
+    formEdit.append("rotationY", data.rotationY);
+    formEdit.append("rotationZ", data.rotationZ);
+    formEdit.append(
+      "avatar",
+      data.avatar[0] ? data.avatar[0] : JSON.stringify(data.avatar)
+    );
+    for (let i = 0; i < data.fileList.length; i++) {
+      formEdit.append(
+        "fileList",
+        data.file.length > 0
+          ? data.fileList[i]
+          : JSON.stringify(data.fileList[i])
+      );
+    }
+    axios
+      .put(
+        `${process.env.REACT_APP_BASE_URL}face/files/${data._id}`,
+        formEdit,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      )
+      .then((response) => {
+        toast.success(response.data.message);
+        getData();
+        toggle();
+        setIsSubmit(false);
+      })
+      .catch((err) => {
+        toast.error(err.message ?? "Error");
+      });
+  };
+
   return (
-    // <Form onSubmit={item ? submitFormEdit : submitFormAdd}>
-    <form className="form-add" onSubmit={handleSubmit(submitFormAdd)}>
+    <form
+      className="form-add"
+      onSubmit={handleSubmit(item ? submitFormEdit : submitFormAdd)}
+    >
       <p>Id</p>
       <TextField disabled id="id" value={id} />
       <br />
@@ -160,11 +226,14 @@ const AddFaceTrackingForm = (props) => {
         Avatar <span className="required">*</span>
       </p>
       <TextField
+        id="avatar"
+        className={item ? "fieldset-file avatar" : "avatar"}
         {...register("avatar")}
         type="file"
         onChange={onChangeAvatar}
         error={isSubmit && !!(avatar.length === 0)}
         helperText={isSubmit && !!(avatar.length === 0) && "Vui lòng chọn file"}
+        inputProps={inputPropsAvatar}
       />
       <br />
       <p>
@@ -264,13 +333,19 @@ const AddFaceTrackingForm = (props) => {
         {...register("file")}
         type="file"
         id="file"
+        className={item ? "fieldset-file file" : "file"}
         inputProps={{
           multiple: true,
           webkitdirectory: "true",
         }}
         onChange={onChangeFile}
-        error={isSubmit && !!(file.length === 0)}
-        helperText={isSubmit && !!(file.length === 0) && "Vui lòng chọn file"}
+        error={isSubmit && (!!(file.length === 0) || !isBinFile || !isGLTFFile)}
+        helperText={
+          (isSubmit && !!(file.length === 0) && "Vui lòng chọn file") ||
+          (isSubmit &&
+            (!isBinFile || !isGLTFFile) &&
+            "File tải lên không đúng định dạng")
+        }
       />
       <ul id="listing"></ul>
       <Button

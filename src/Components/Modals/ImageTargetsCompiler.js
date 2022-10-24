@@ -1,10 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { Box, Button, TextField } from "@mui/material";
 import axios from "axios";
 import { toast } from "react-toastify";
 
 const ImageTargetsCompiler = () => {
-  const [imageCompiler, setImageCompiler] = useState("");
   const deleteImageCompiler = async () => {
     await axios.delete(`${process.env.REACT_APP_BASE_URL}imageTargets/files`, {
       headers: {
@@ -15,14 +14,18 @@ const ImageTargetsCompiler = () => {
 
   const handleChangeImageTargetsCompiler = async (e) => {
     const imageCompilerFile2 = document.querySelector("fieldset");
-    setImageCompiler(e.target.files);
     await deleteImageCompiler();
 
     var formAdd = new FormData();
-    if (e.target.files.length === 0) {
-      imageCompilerFile2.innerText = imageCompiler[0].name;
+
+    if (
+      e.target.files.length === 0 ||
+      !e.target.files[0].name.includes(".mind")
+    ) {
+      toast.error("File tải lên phải là .mind");
       return;
     }
+
     formAdd.append("image_compiler", e.target.files[0]);
     await axios
       .post(`${process.env.REACT_APP_BASE_URL}imageTargets/files`, formAdd, {

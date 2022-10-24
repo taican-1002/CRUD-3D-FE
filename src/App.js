@@ -114,9 +114,13 @@ const App = () => {
           </CSVLink> */}
           <ModalForm
             buttonLabel="Add Item"
-            getFaceData={getFaceData}
-            getImageData={getImageData}
-            getVideoData={getVideoData}
+            getData={
+              tabValue === "1"
+                ? getFaceData
+                : tabValue === "2"
+                ? getImageData
+                : getVideoData
+            }
             tabValue={tabValue}
           />
         </Col>

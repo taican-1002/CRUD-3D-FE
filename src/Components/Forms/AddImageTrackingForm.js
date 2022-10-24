@@ -12,8 +12,10 @@ import generateId from "../../func/randomHex";
 const inputProps = { inputMode: "decimal", step: 0.01 };
 
 const AddImageTrackingForm = (props) => {
-  const { getData, toggle } = props;
+  const { getData, toggle, item } = props;
   const [file, setFile] = useState([]);
+  const [isBinFile, setIsBinFile] = useState(false);
+  const [isGLTFFile, setIsGLTFFile] = useState(false);
   const [image, setImage] = useState([]);
   const [isSubmit, setIsSubmit] = useState(false);
   const [id, setId] = useState("");
@@ -21,6 +23,7 @@ const AddImageTrackingForm = (props) => {
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors },
   } = useForm({
     defaultValues: initialValuesImage,
@@ -28,12 +31,36 @@ const AddImageTrackingForm = (props) => {
   });
 
   useEffect(() => {
-    setId(uuidv4());
-  }, []);
+    var output = document.getElementById("listing");
+    const imageFieldset = document.querySelector(".image fieldset");
+    const fileFieldset = document.querySelector(".file fieldset");
+    !item && setId(uuidv4());
+    !item && setIdImage(generateId());
+    if (item) {
+      setIsBinFile(true);
+      setIsGLTFFile(true);
+      reset(item);
+      setId(item.id);
+      setIdImage(item.idImage);
+      setImage(item.image);
+      setFile(item.fileList);
+      imageFieldset.innerHTML = item.image.filename;
+      fileFieldset.innerHTML = item.fileList.length + " files";
+      for (const file of item.fileList) {
+        let liFile = document.createElement("li");
+        liFile.innerHTML = file.filename;
+        output.appendChild(liFile);
+      }
+    }
+  }, [item, reset]);
 
   const onChangeImage = (e) => {
-    setImage(e.target.files);
-    file.length > 0 && setIsSubmit(false);
+    const imageFieldset = document.querySelector(".image fieldset");
+    if (item) {
+      imageFieldset.innerHTML = e.target.files[0].name;
+    }
+    setImage(e.target.files[0]);
+    file.length > 0 && isBinFile && isGLTFFile && setIsSubmit(false);
     if (e.target.files.length === 0) {
       setImage([]);
       setIsSubmit(true);
@@ -41,7 +68,14 @@ const AddImageTrackingForm = (props) => {
   };
 
   const onChangeFile = (e) => {
+    setIsBinFile(false);
+    setIsGLTFFile(false);
     let output = document.getElementById("listing");
+    output.innerHTML = "";
+    const fileFieldset = document.querySelector(".file fieldset");
+    if (item) {
+      fileFieldset.innerHTML = e.target.files.length + " files";
+    }
     for (const file of e.target.files) {
       let item = document.createElement("li");
       item.textContent = file.webkitRelativePath;
@@ -53,12 +87,21 @@ const AddImageTrackingForm = (props) => {
       setFile([]);
       setIsSubmit(true);
     }
+    for (let i = 0; i < e.target.files.length; i++) {
+      e.target.files[i].name.includes(".bin") && setIsBinFile(true);
+      e.target.files[i].name.includes(".gltf") && setIsGLTFFile(true);
+    }
 
     setFile(e.target.files);
   };
   const submitFormAdd = (data) => {
     var formAdd = new FormData();
-    if (data.file.length === 0 || data.image.length === 0) {
+    if (
+      data.file.length === 0 ||
+      data.image.length === 0 ||
+      !isBinFile ||
+      !isGLTFFile
+    ) {
       return;
     }
     formAdd.append("id", id);
@@ -91,9 +134,72 @@ const AddImageTrackingForm = (props) => {
       })
       .catch((err) => toast.error(err.message ?? "Error"));
   };
+
+  const submitFormEdit = (data) => {
+    console.log("Edit: ", props);
+    console.log("Data: ", data);
+    if (data.file.length > 0) {
+      data.fileList = data.file;
+    }
+    var formEdit = new FormData();
+    if (
+      data.fileList.length === 0 ||
+      data.image.length === 0 ||
+      !isBinFile ||
+      !isGLTFFile
+    ) {
+      return;
+    }
+    formEdit.append("id", id);
+    formEdit.append("name", data.name);
+    formEdit.append("index", data.index);
+    formEdit.append("scaleX", data.scaleX);
+    formEdit.append("scaleY", data.scaleY);
+    formEdit.append("scaleZ", data.scaleZ);
+    formEdit.append("positionX", data.positionX);
+    formEdit.append("positionY", data.positionY);
+    formEdit.append("positionZ", data.positionZ);
+    formEdit.append("rotationX", data.rotationX);
+    formEdit.append("rotationY", data.rotationY);
+    formEdit.append("rotationZ", data.rotationZ);
+    formEdit.append(
+      "image",
+      data.image[0] ? data.image[0] : JSON.stringify(data.image)
+    );
+    for (let i = 0; i < data.fileList.length; i++) {
+      formEdit.append(
+        "fileList",
+        data.file.length > 0
+          ? data.fileList[i]
+          : JSON.stringify(data.fileList[i])
+      );
+    }
+    axios
+      .put(
+        `${process.env.REACT_APP_BASE_URL}image/files/${data._id}`,
+        formEdit,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      )
+      .then((response) => {
+        toast.success(response.data.message);
+        getData();
+        toggle();
+        setIsSubmit(false);
+      })
+      .catch((err) => {
+        toast.error(err.message ?? "Error");
+      });
+  };
+
   return (
-    // <Form onSubmit={item ? submitFormEdit : submitFormAdd}>
-    <form className="form-add" onSubmit={handleSubmit(submitFormAdd)}>
+    <form
+      className="form-add"
+      onSubmit={handleSubmit(item ? submitFormEdit : submitFormAdd)}
+    >
       <p>Id</p>
       <TextField disabled id="id" value={id} />
       <p>Id Image</p>
@@ -207,6 +313,7 @@ const AddImageTrackingForm = (props) => {
         {...register("image")}
         type="file"
         id="image"
+        className={item ? "fieldset-file image" : "image"}
         onChange={onChangeImage}
         error={isSubmit && !!(image.length === 0)}
         helperText={isSubmit && !!(image.length === 0) && "Vui lòng chọn file"}
@@ -223,9 +330,15 @@ const AddImageTrackingForm = (props) => {
           multiple: true,
           webkitdirectory: "true",
         }}
+        className={item ? "fieldset-file file" : "file"}
         onChange={onChangeFile}
-        error={isSubmit && !!(file.length === 0)}
-        helperText={isSubmit && !!(file.length === 0) && "Vui lòng chọn file"}
+        error={isSubmit && (!!(file.length === 0) || !isBinFile || !isGLTFFile)}
+        helperText={
+          (isSubmit && !!(file.length === 0) && "Vui lòng chọn file") ||
+          (isSubmit &&
+            (!isBinFile || !isGLTFFile) &&
+            "File tải lên không đúng định dạng")
+        }
       />
       <ul id="listing"></ul>
 
