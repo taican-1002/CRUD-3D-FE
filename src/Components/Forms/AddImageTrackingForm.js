@@ -10,6 +10,9 @@ import { TextField, Button, Box } from "@mui/material";
 import generateId from "../../func/randomHex";
 
 const inputProps = { inputMode: "decimal", step: 0.01 };
+const inputPropsImage = {
+  accept: "image/*",
+};
 
 const AddImageTrackingForm = (props) => {
   const { getData, toggle, item } = props;
@@ -317,6 +320,7 @@ const AddImageTrackingForm = (props) => {
         onChange={onChangeImage}
         error={isSubmit && !!(image.length === 0)}
         helperText={isSubmit && !!(image.length === 0) && "Vui lòng chọn file"}
+        inputProps={inputPropsImage}
       />
       <br />
       <p>
